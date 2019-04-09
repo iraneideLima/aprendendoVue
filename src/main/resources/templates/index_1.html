@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Agenda</title>
+
+    <!-- Vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+
+                <h1 class= "row justify-content-center">Projeto Agenda</h1>
+
+
+<div class="table-responsive">
+    <table class = "table" id="v-for">
+        <thead class="p-3 mb-2 bg-primary text-dark">
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Telefone</th>
+            <th scope="col">Email</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr v-for="pessoas in pessoa">
+            <td> {{ pessoas.id }} </td>
+            <td> {{ pessoas.nome }}  </td>
+            <td> {{ pessoas.telefone }} </td>
+            <td> {{ pessoas.email }} </td>
+
+
+
+        </tr>
+        <div class="container "  id="app">
+            <div class="row row justify-content-center">
+<div class="card border-primary mb-3" style="max-width: 18rem;">
+  <div class="card-header ">Adicionar</div>
+  <div class="card-body text-primary">
+
+    <p class="card-text">
+    <div class="col-sm">
+
+
+
+                    <input v-model="pessoas.nome"class="form-control" placeholder="Nome"> <br>
+                    <input v-model="pessoas.telefone"class="form-control" placeholder="Telefone"><br>
+                    <input v-model="pessoas.email"class="form-control" placeholder="E-mail"><br>
+                    <br>
+                    <button v-on:click="adicionar" class="btn btn-primary">Adicionar Pessoa</button>
+
+
+                </div></p>
+
+  </div>
+</div>
+
+
+
+<div class="card border-warning mb-3" style="max-width: 18rem;">
+  <div class="card-header ">Editar</div>
+  <div class="card-body text-warning">
+
+    <p class="card-text"><div class="col-sm">
+
+                    <input v-model="pessoaEditar.id" class="form-control" placeholder="Id "><br>
+                    <input v-model="pessoaEditar.nome" class="form-control" placeholder="Nome"><br>
+                    <input v-model="pessoaEditar.telefone" class="form-control" placeholder="Telefone"><br>
+                    <input v-model="pessoaEditar.email" class="form-control" placeholder="E-mail"><br>
+                    <br>
+                    <button v-on:click="editar" class="btn btn-warning">Editar Pessoa</button>
+                </div>
+                </p>
+  </div>
+</div>
+
+
+
+
+
+
+<div class="card border-danger mb-3" style="max-width: 18rem;">
+  <div class="card-header ">Remover</div>
+  <div class="card-body text-danger">
+
+    <p class="card-text"><div class="col-sm">
+
+
+
+                    <input v-model="idpessoa" class="form-control" placeholder="Id do contato">
+                    <br>
+                    <button v-on:click="remover" class="btn btn-danger">Remover Pessoa</button>
+
+
+                </div>
+</p>
+            </div>
+        </div>
+
+        <br>
+
+        </tbody>
+
+
+
+    </table>
+
+</div>
+
+<script>
+
+    new Vue({
+        el: '#v-for',
+        data: {
+            pessoa: []
+        },
+        mounted(){
+            this.$http.get('/pessoa/All').then(response => {
+                this.pessoa = response.body;
+
+        });
+        }
+
+
+    });
+
+
+</script>
+
+<script>
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            pessoa :[],
+            idpessoa : null,
+            pessoaEditar: {
+                id : null,
+                nome : null,
+                telefone : null,
+                email : null
+            },
+            pessoas:{
+                nome: null,
+                telefone : null,
+                email : null
+            },
+
+
+        },
+        methods: {
+            adicionar: function (event) {
+                this.$http.post('/pessoa/adicionar', this.pessoas).then(response => {
+                    this.pessoa.push(response.body)
+
+                });
+
+            },
+            remover: function (event) {
+                this.$http.delete('/pessoa/excluir/' + this.idpessoa).then(response =>{
+                    this.pessoa = response.body
+                    this.mostrar();
+            });
+            },
+
+            editar: function (event) {
+                this.$http.put('/pessoa/editar/' + this.pessoaEditar.id, this.pessoaEditar).then(response => {
+                    this.pessoa = response.body
+                });
+            },
+
+        }
+    })
+
+
+</script>
+
+</body>
+
+</html>
